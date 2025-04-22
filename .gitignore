@@ -1,0 +1,39 @@
+# Bytecode and cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+face_env/
+.env/
+.venv/
+pyvenv.cfg
+
+# IDE & editor folders
+.idea/
+.vscode/
+
+# Build & dist
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+*.old
+*.orig
+
+# Model checkpoints (if used)
+*.h5
+*.ckpt
+*.pt
+*.pth
+
+# ✅ Keep result images and scripts
+!*.csv
+!*.png
+!face_recognition_app.py
+!face_data_collector_and_analyzer.py
+!requirements.txt
+!README.md
