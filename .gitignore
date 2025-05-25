@@ -30,7 +30,7 @@ dist/
 *.pt
 *.pth
 
-# ✅ Keep result images and scripts
+#  Keep result images and scripts
 !*.csv
 !*.png
 !face_recognition_app.py
