@@ -50,5 +50,5 @@ jobs:
       - name: Build and push Docker image
         run: |
           IMAGE_NAME=ghcr.io/${{ env.REPO_NAME }}/face-analysis-app:latest
-          docker build -t $IMAGE_NAME ./Face_recogAI
+          docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
