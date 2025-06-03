@@ -49,7 +49,7 @@ while sample_count < max_samples:
         except Exception as e:
             print("⚠️ DeepFace error:", e)
 
-        break 
+        break
 
     cv2.putText(frame, f"Samples: {sample_count}/{max_samples}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)

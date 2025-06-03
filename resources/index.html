@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Real-Time Face Analysis</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- Google Fonts: JetBrains Mono and Recursive -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Recursive:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Tailwind CSS v4 and daisyUI v5 CDN -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/daisyui@5"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <style>
+            body,
+            .font-body,
+            .recursive-font {
+                font-family: "Recursive", system-ui, sans-serif;
+            }
+            .font-header,
+            .jetbrains-header {
+                font-family: "JetBrains Mono", monospace;
+            }
+        </style>
+    </head>
+    <body
+        class="bg-base-200 min-h-screen flex flex-col items-center justify-center font-body recursive-font"
+    >
+        <div class="w-full max-w-2xl p-6 mt-8">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body items-center">
+                    <h1
+                        class="card-title text-3xl mb-4 text-primary font-header jetbrains-header"
+                    >
+                        Real-Time Face Analysis
+                    </h1>
+                    <div class="flex flex-col items-center mb-2">
+                        <span
+                            class="font-header jetbrains-header text-xs tracking-widest uppercase text-primary font-bold"
+                        >
+                            AIF 2024/2025 Project
+                        </span>
+                        <span
+                            class="font-body text-center recursive-font text-xs mt-0.5 text-base-content/70 font-medium tracking-tight"
+                        >
+                            by
+                            <span class="font-semibold text-base-content"
+                                >Mateusz Cieśla</span
+                            >
+                            <span class="mx-1 text-base-content/40">·</span>
+                            <span class="font-semibold text-base-content"
+                                >Esbol Erlan</span
+                            >
+                            <span class="mx-1 text-base-content/40">·</span>
+                            <span class="font-semibold text-base-content"
+                                >Sheaba El-Esawy</span
+                            >
+                            <span class="mx-1 text-base-content/40">·</span>
+                            <span class="font-semibold text-base-content"
+                                >Rubayet Rafsan</span
+                            >
+                        </span>
+                    </div>
+                    <div
+                        class="flex flex-col md:flex-row items-center justify-center gap-6"
+                    >
+                        <video
+                            id="inputVideo"
+                            width="320"
+                            height="240"
+                            autoplay
+                            muted
+                            class="rounded-lg border border-base-300 shadow w-full max-w-xs md:max-w-[320px] h-auto"
+                            style="display: none"
+                        ></video>
+                        <canvas
+                            id="outputCanvas"
+                            width="640"
+                            height="480"
+                            class="rounded-lg border-4 border-primary shadow bg-accent w-[640px] max-w-[95vw] h-auto"
+                        ></canvas>
+                    </div>
+                    <div
+                        class="flex flex-row flex-wrap sm:flex-nowrap items-center mt-6 gap-3 justify-center w-full"
+                    >
+                        <button
+                            id="startBtn"
+                            class="btn btn-primary font-header jetbrains-header"
+                        >
+                            Start Stream
+                        </button>
+                        <form
+                            id="uploadForm"
+                            class="flex min-w-fit flex-row items-center gap-2"
+                            autocomplete="off"
+                            onsubmit="return false;"
+                        >
+                            <label
+                                class="btn btn-primary font-header jetbrains-header cursor-pointer m-0"
+                            >
+                                Choose File
+                                <input
+                                    id="imageInput"
+                                    type="file"
+                                    accept="image/*"
+                                    class="hidden"
+                                />
+                            </label>
+                        </form>
+                        <p
+                            id="status"
+                            class="ml-4 text-center text-sm text-base-content/70 font-body recursive-font"
+                            style="display: none"
+                        ></p>
+                    </div>
+                </div>
+                <div class="card-actions items-center justify-center mt-2 mb-2">
+                    <span
+                        class="badge badge-outline badge-lg font-body recursive-font"
+                        >Powered by
+                        <span class="ml-1 font-semibold text-primary"
+                            >FastAPI</span
+                        >
+                        &
+                        <span class="ml-1 font-semibold text-primary"
+                            >daisyUI 5</span
+                        ></span
+                    >
+                    <button
+                        id="showDepsBtn"
+                        class="btn btn-sm scale-85 btn-outline ml-2 font-mono"
+                        onclick="document.getElementById('deps_modal').showModal();"
+                    >
+                        Show Dependencies
+                    </button>
+                </div>
+                <!-- Modal for dependencies -->
+                <dialog id="deps_modal" class="modal">
+                    <form method="dialog" class="modal-box max-w-2xl">
+                        <h3
+                            class="font-header jetbrains-header text-base text-primary mb-2"
+                        >
+                            Dependencies
+                        </h3>
+                        <span
+                            class="text-[0.7rem] font-mono text-base-content/70"
+                            >Python 3.12.0</span
+                        >
+                        <div
+                            class="flex flex-col flex-wrap max-h-60 overflow-x-auto overflow-y-auto border border-base-300 rounded bg-base-200 p-2"
+                        >
+                            <ul
+                                id="depsList"
+                                class="text-[0.65rem] font-mono text-base-content/60 whitespace-nowrap"
+                            >
+                                <li>absl-py==2.3.0</li>
+                                <li>annotated-types==0.7.0</li>
+                                <li>anyio==4.9.0</li>
+                                <li>astunparse==1.6.3</li>
+                                <li>beautifulsoup4==4.13.4</li>
+                                <li>blinker==1.9.0</li>
+                                <li>certifi==2025.4.26</li>
+                                <li>charset-normalizer==3.4.2</li>
+                                <li>click==8.2.1</li>
+                                <li>deepface==0.0.93</li>
+                                <li>fastapi==0.115.12</li>
+                                <li>filelock==3.18.0</li>
+                                <li>fire==0.7.0</li>
+                                <li>Flask==3.1.1</li>
+                                <li>flask-cors==6.0.0</li>
+                                <li>flatbuffers==25.2.10</li>
+                                <li>gast==0.6.0</li>
+                                <li>gdown==5.2.0</li>
+                                <li>google-pasta==0.2.0</li>
+                                <li>grpcio==1.72.1</li>
+                                <li>gunicorn==23.0.0</li>
+                                <li>h11==0.16.0</li>
+                                <li>h5py==3.13.0</li>
+                                <li>idna==3.10</li>
+                                <li>itsdangerous==2.2.0</li>
+                                <li>Jinja2==3.1.6</li>
+                                <li>joblib==1.5.1</li>
+                                <li>keras==3.10.0</li>
+                                <li>libclang==18.1.1</li>
+                                <li>lz4==4.4.4</li>
+                                <li>Markdown==3.8</li>
+                                <li>markdown-it-py==3.0.0</li>
+                                <li>MarkupSafe==3.0.2</li>
+                                <li>mdurl==0.1.2</li>
+                                <li>ml_dtypes==0.5.1</li>
+                                <li>mtcnn==1.0.0</li>
+                                <li>namex==0.1.0</li>
+                                <li>numpy==2.1.3</li>
+                                <li>opencv-python==4.11.0.86</li>
+                                <li>opt_einsum==3.4.0</li>
+                                <li>optree==0.16.0</li>
+                                <li>packaging==25.0</li>
+                                <li>pandas==2.2.3</li>
+                                <li>pillow==11.2.1</li>
+                                <li>protobuf==5.29.5</li>
+                                <li>pydantic==2.11.5</li>
+                                <li>pydantic_core==2.33.2</li>
+                                <li>Pygments==2.19.1</li>
+                                <li>PySocks==1.7.1</li>
+                                <li>python-dateutil==2.9.0.post0</li>
+                                <li>python-multipart==0.0.20</li>
+                                <li>pytz==2025.2</li>
+                                <li>requests==2.32.3</li>
+                                <li>retina-face==0.0.17</li>
+                                <li>rich==14.0.0</li>
+                                <li>setuptools==80.9.0</li>
+                                <li>six==1.17.0</li>
+                                <li>sniffio==1.3.1</li>
+                                <li>soupsieve==2.7</li>
+                                <li>starlette==0.46.2</li>
+                                <li>tensorboard==2.19.0</li>
+                                <li>tensorboard-data-server==0.7.2</li>
+                                <li>tensorflow==2.19.0</li>
+                                <li>termcolor==3.1.0</li>
+                                <li>tf_keras==2.19.0</li>
+                                <li>tqdm==4.67.1</li>
+                                <li>typing-inspection==0.4.1</li>
+                                <li>typing_extensions==4.14.0</li>
+                                <li>tzdata==2025.2</li>
+                                <li>urllib3==2.4.0</li>
+                                <li>uvicorn==0.34.3</li>
+                                <li>websockets==15.0.1</li>
+                                <li>Werkzeug==3.1.3</li>
+                                <li>wheel==0.45.1</li>
+                                <li>wrapt==1.17.2</li>
+                            </ul>
+                        </div>
+                        <div class="flex items-center modal-action mt-2">
+                            <button
+                                type="button"
+                                id="copyDepsBtn"
+                                class="btn btn-xs btn-outline ml-2 font-mono"
+                            >
+                                Copy to clipboard
+                            </button>
+                            <button
+                                class="btn btn-xs btn-outline"
+                                onclick="document.getElementById('deps_modal').close();"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </form>
+                </dialog>
+            </div>
+        </div>
+        <script>
+            let ws;
+            let video = document.getElementById("inputVideo");
+            let canvas = document.getElementById("outputCanvas");
+            let ctx = canvas.getContext("2d");
+            let streaming = false;
+            let statusText = document.getElementById("status");
+            let startBtn = document.getElementById("startBtn");
+            let imageInput = document.getElementById("imageInput");
+            let uploadForm = document.getElementById("uploadForm");
+
+            // Copy dependencies to clipboard
+            document.addEventListener("DOMContentLoaded", function () {
+                const copyBtn = document.getElementById("copyDepsBtn");
+                const depsList = document.getElementById("depsList");
+                if (copyBtn && depsList) {
+                    copyBtn.onclick = function () {
+                        // Get all text from the list
+                        let text = Array.from(depsList.querySelectorAll("li"))
+                            .map((li) => li.textContent)
+                            .join("\n");
+                        // Add python version at the top
+                        text = "python==3.11\n" + text;
+                        navigator.clipboard.writeText(text);
+                        copyBtn.textContent = "Copied!";
+                        setTimeout(() => {
+                            copyBtn.textContent = "Copy to clipboard";
+                        }, 1200);
+                    };
+                }
+            });
+
+            // Fill canvas with accent color and message when not streaming
+            function showCameraInactive() {
+                ctx.fillStyle =
+                    getComputedStyle(canvas).getPropertyValue("--a-accent") ||
+                    "#37cdbe";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.font = "bold 2rem 'JetBrains Mono', monospace";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#fff";
+                ctx.fillText(
+                    "No output just yet...",
+                    canvas.width / 2,
+                    canvas.height / 2 - 20,
+                );
+                ctx.font = "1.1rem 'Recursive', sans-serif";
+                ctx.fillText(
+                    "Start a live camera stream or upload an image to analyze",
+                    canvas.width / 2,
+                    canvas.height / 2 + 30,
+                );
+                setStatus(""); // Hide status when inactive
+            }
+
+            // Show inactive state on load
+            document.addEventListener("DOMContentLoaded", showCameraInactive);
+
+            // Helper to set status and show/hide
+            function setStatus(msg) {
+                statusText.textContent = msg;
+                statusText.style.display = msg ? "" : "none";
+                statusText.style.flex = msg ? "1" : "auto";
+            }
+
+            startBtn.onclick = function () {
+                if (streaming) return;
+                startBtn.disabled = true;
+                startBtn.textContent = "Connecting...";
+                setStatus("Requesting webcam access...");
+                navigator.mediaDevices
+                    .getUserMedia({ video: true, audio: false })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                        video.play();
+                        setStatus("Connecting to server...");
+                        ws = new WebSocket(
+                            (location.protocol === "https:"
+                                ? "wss://"
+                                : "ws://") +
+                                location.host +
+                                "/ws-analyze",
+                        );
+                        ws.binaryType = "arraybuffer";
+                        ws.onopen = function () {
+                            streaming = true;
+                            // Remove accent bg by clearing canvas on first frame
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            startBtn.textContent = "Streaming...";
+                            setStatus(
+                                "Streaming video to server and receiving annotated frames.",
+                            );
+                            sendFrames();
+                        };
+                        ws.onmessage = function (event) {
+                            let blob = new Blob([event.data], {
+                                type: "image/jpeg",
+                            });
+                            let url = URL.createObjectURL(blob);
+                            let img = new window.Image();
+                            img.onload = function () {
+                                ctx.drawImage(
+                                    img,
+                                    0,
+                                    0,
+                                    canvas.width,
+                                    canvas.height,
+                                );
+                                URL.revokeObjectURL(url);
+                            };
+                            img.src = url;
+                        };
+                        ws.onclose = function () {
+                            streaming = false;
+                            startBtn.disabled = false;
+                            startBtn.textContent = "Start Stream";
+                            setStatus("Connection closed.");
+                            showCameraInactive();
+                        };
+                        ws.onerror = function () {
+                            streaming = false;
+                            startBtn.disabled = false;
+                            startBtn.textContent = "Start Stream";
+                            setStatus("WebSocket error.");
+                            showCameraInactive();
+                        };
+                    })
+                    .catch(function (err) {
+                        setStatus("Could not access webcam: " + err);
+                        startBtn.disabled = false;
+                        startBtn.textContent = "Start Stream";
+                        showCameraInactive();
+                    });
+            };
+
+            function sendFrames() {
+                if (!streaming) return;
+                let hiddenCanvas = document.createElement("canvas");
+                hiddenCanvas.width = 320;
+                hiddenCanvas.height = 240;
+                let hiddenCtx = hiddenCanvas.getContext("2d");
+                hiddenCtx.drawImage(video, 0, 0, 320, 240);
+                hiddenCanvas.toBlob(
+                    function (blob) {
+                        if (ws && ws.readyState === 1 && blob) {
+                            blob.arrayBuffer().then((buf) => ws.send(buf));
+                        }
+                        setTimeout(sendFrames, 40); // ~25 FPS
+                    },
+                    "image/jpeg",
+                    0.8,
+                );
+            }
+
+            // --- Static Image Upload ---
+            imageInput.onchange = async function () {
+                // Stop the stream if running
+                if (streaming) {
+                    streaming = false;
+                    if (ws) {
+                        ws.close();
+                    }
+                    if (video.srcObject) {
+                        let tracks = video.srcObject.getTracks();
+                        tracks.forEach((track) => track.stop());
+                        video.srcObject = null;
+                    }
+                    startBtn.disabled = false;
+                    startBtn.textContent = "Start Stream";
+                }
+                if (!imageInput.files || imageInput.files.length === 0) {
+                    setStatus("Please select an image file to analyze.");
+                    return;
+                }
+                setStatus("Uploading image for analysis...");
+                startBtn.disabled = true;
+                try {
+                    const file = imageInput.files[0];
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    // Prompt for basic auth if not cached
+                    let auth = window.localStorage.getItem("fa_auth");
+                    if (!auth) {
+                        let user = prompt(
+                            "Username for Face Analysis:",
+                            "face_analysis",
+                        );
+                        let pass = prompt("Password for Face Analysis:", "");
+                        auth = "Basic " + btoa(user + ":" + pass);
+                        window.localStorage.setItem("fa_auth", auth);
+                    }
+                    const resp = await fetch("/analyze-image", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            Authorization: auth,
+                        },
+                    });
+                    if (!resp.ok) {
+                        if (resp.status === 401) {
+                            window.localStorage.removeItem("fa_auth");
+                            setStatus(
+                                "Authentication failed. Please try again.",
+                            );
+                        } else {
+                            setStatus(
+                                "Image analysis failed: " + resp.statusText,
+                            );
+                        }
+                        startBtn.disabled = false;
+                        return;
+                    }
+                    const blob = await resp.blob();
+                    let url = URL.createObjectURL(blob);
+                    let img = new window.Image();
+                    img.onload = function () {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        URL.revokeObjectURL(url);
+                    };
+                    img.src = url;
+                    setStatus("Image analyzed and displayed.");
+                } catch (e) {
+                    setStatus("Error: " + e);
+                }
+                startBtn.disabled = false;
+            };
+        </script>
+    </body>
+</html>

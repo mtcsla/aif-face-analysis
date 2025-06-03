@@ -37,3 +37,6 @@ dist/
 !face_data_collector_and_analyzer.py
 !requirements.txt
 !README.md
+requirements.txt
+face_data_collector_and_analyzer
+.env
