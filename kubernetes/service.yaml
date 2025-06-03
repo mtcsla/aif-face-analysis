@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: face-analysis-app-service
+  namespace: aif
+  labels:
+    app: face-analysis-app
+spec:
+  selector:
+    app: face-analysis-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

@@ -39,3 +39,11 @@ dist/
 !README.md
 face_data_collector_and_analyzer
 .env
+
+kubernetes/**/*
+!kubernetes/app-secret.yaml
+!kubernetes/deployment.yaml
+!kubernetes/ghcr-secret.yaml
+!kubernetes/ingress.yaml
+!kubernetes/service.yaml
+!kubernetes/ws-middleware.yaml

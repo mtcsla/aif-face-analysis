@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: face-analysis-app-ingressroute
+  namespace: aif
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`aif.mtcsla.dev`) && PathPrefix(`/ws-`)
+      kind: Rule
+      services:
+        - name: face-analysis-app-service
+          port: 80
+      middlewares:
+        - name: websocket-headers
+    - match: Host(`aif.mtcsla.dev`)
+      kind: Rule
+      services:
+        - name: face-analysis-app-service
+          port: 80
+  tls:
+    certResolver: letsencrypt

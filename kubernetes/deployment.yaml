@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: face-analysis-app
+  namespace: aif
+  labels:
+    app: face-analysis-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: face-analysis-app
+  template:
+    metadata:
+      labels:
+        app: face-analysis-app
+    spec:
+      containers:
+        - name: face-analysis-app
+          image: ghcr.io/mtcsla/aif-face-analysis/face-analysis-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: APP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: face-analysis-app-secret
+                  key: APP_USERNAME
+            - name: APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: face-analysis-app-secret
+                  key: APP_PASSWORD
+      imagePullSecrets:
+        - name: ghcr-secret
